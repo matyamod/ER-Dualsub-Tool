@@ -117,7 +117,6 @@ if __name__=='__main__':
     mod_name = args.mod_name
     lang1=args.lang1
     lang2=args.lang2
-    
     lang_dirs = [get_lang_dir(lang) for lang in [lang1, lang2]]
     swap_files = args.swap_files
     remove_lang2 = args.remove_lang2
@@ -138,6 +137,7 @@ if __name__=='__main__':
         raise RuntimeError('Langages are the same. ({})'.format(lang1))
 
     #print settings
+    print('ER Dualsub Tool ver1.0')
     print('Settings')
     print('  lang1: {}'.format(lang1))
     print('  lang2: {}'.format(lang2))

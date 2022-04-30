@@ -3,7 +3,7 @@
         {
             "label": "Make Dualsub",
             "window_name": "ER Dualsub Tool",
-            "command": ["python\\python.exe er_dualsub.py \"", "\" \"", "\" ", " ", " "],
+            "command": ["python\\python.exe -u er_dualsub.py \"", "\" \"", "\" ", " ", " "],
             "button": "Run!",
             "show_last_line": true,
             "components": [
@@ -110,6 +110,11 @@
         }
     ],
     "help": [
+        {
+            "type": "url",
+            "label": "About ER Dualsub Tool",
+            "url": "github.com/matyalatte/ER-Dualsub-Tool"
+        },
         {
             "type": "url",
             "label": "About Simple Command Runner",
