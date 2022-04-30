@@ -1,0 +1,13 @@
+python
+
+*.exe
+*.bat
+*.zip
+*.xml
+*.dcx
+*.msgbnd
+*.json
+!gui_definition.json
+
+msg*
+dualsub*

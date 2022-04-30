@@ -1,0 +1,119 @@
+{
+    "gui": [
+        {
+            "label": "Make Dualsub",
+            "window_name": "ER Dualsub Tool",
+            "command": ["python\\python.exe er_dualsub.py \"", "\" \"", "\" ", " ", " "],
+            "button": "Run!",
+            "show_last_line": true,
+            "components": [
+                {
+                    "type": "folder",
+                    "label": "Path to msg folder"
+                },
+                {
+                    "type": "file",
+                    "label": "Path to Yabber.exe",
+                    "extension": "Yabber.exe | Yabber.exe"
+                },
+                {
+                    "type": "choice",
+                    "label": "Language 1",
+                    "width": 150,
+                    "items": [
+                        "German",
+                        "English",
+                        "Spanish - Latin America",
+                        "Spanish - Spain",
+                        "French",
+                        "Italian",
+                        "Japanese",
+                        "Korean",
+                        "Polish",
+                        "Portuguese - Brazil",
+                        "Russian",
+                        "Thai",
+                        "Simplified Chinese",
+                        "Traditional Chinese"
+                    ],
+                    "values": [
+                        "de",
+                        "en",
+                        "es-ar",
+                        "es-es",
+                        "fr",
+                        "it",
+                        "ja",
+                        "ko",
+                        "pt-pt",
+                        "pt-br",
+                        "ru",
+                        "th", 
+                        "zh-cn",
+                        "zh-tw"
+                    ],
+                    "default": 1
+                },
+                {
+                    "type": "choice",
+                    "label": "Language 2",
+                    "width": 150,
+                    "items": [
+                        "German",
+                        "English",
+                        "Spanish - Latin America",
+                        "Spanish - Spain",
+                        "French",
+                        "Italian",
+                        "Japanese",
+                        "Korean",
+                        "Polish",
+                        "Portuguese - Brazil",
+                        "Russian",
+                        "Thai",
+                        "Simplified Chinese",
+                        "Traditional Chinese"
+                    ],
+                    "values": [
+                        "de",
+                        "en",
+                        "es-ar",
+                        "es-es",
+                        "fr",
+                        "it",
+                        "ja",
+                        "ko",
+                        "pt-pt",
+                        "pt-br",
+                        "ru",
+                        "th", 
+                        "zh-cn",
+                        "zh-tw"
+                    ],
+                    "default": 6
+                },
+                {
+                    "type": "checks",
+                    "label": "Options",
+                    "items": [
+                        "Swap fmg files between 2 languages after making dualsub",
+                        "Display all text in 2 languages",
+                        "Remain intermediate files (.xml, .msgbnd, etc.)"
+                    ],
+                    "values": [
+                        "--swap_files ",
+                        "--all ",
+                        "--debug "
+                    ]
+                }
+            ]
+        }
+    ],
+    "help": [
+        {
+            "type": "url",
+            "label": "About Simple Command Runner",
+            "url": "github.com/matyalatte/Simple-Command-Runner"
+        }
+    ]
+}
