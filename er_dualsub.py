@@ -85,7 +85,7 @@ class FmgXml:
             xml2_e.text = t2 + sep + t1
 
     def merge_text_std(t1, t2, sep, id, all):
-        if len(t1)<10 and t1.replace(' ', '').lower()==t2.replace(' ', '').lower():
+        if t1.replace(' ', '').lower()==t2.replace(' ', '').lower() or (t1 in ['x', '×']):
             return t1, '', ''
         if sep is None:
             if '\n' in t1 or '\n' in t2:
@@ -101,7 +101,7 @@ class FmgXml:
         return t1, sep, t2
 
     def merge_text_grdialog(t1, t2, sep, id, all):
-        if (len(id)<3 and not all) or (len(t1)<10 and t1.replace(' ', '').lower()==t2.replace(' ', '').lower()):
+        if (len(id)<3 and not all) or (t1.replace(' ', '').lower()==t2.replace(' ', '').lower()):
             return t1, '', ''
         return t1, sep, t2
 
@@ -123,10 +123,7 @@ if __name__=='__main__':
     debug = args.debug
     all = args.all
     if mod_name is None or mod_name=='':
-        if swap_files:
-            mod_name = 'dualsub_{}_{}'.format(lang2, lang1) + '_all'*all
-        else:
-            mod_name = 'dualsub_{}_{}'.format(lang1, lang2) + '_all'*all
+        mod_name = 'dualsub_{}_{}'.format(lang1, lang2) + '_all'*all + '_swap'*swap_files
 
     #check args
     if os.path.basename(args.yabber)!='Yabber.exe':
@@ -147,8 +144,10 @@ if __name__=='__main__':
 
     #make buckup
     print('Making backup: msg_backup\n')
-    if os.path.exists('msg_backup'):
-        shutil.rmtree('msg_backup')
+    if os.path.exists(os.path.join('msg_backup', lang_dirs[0])):
+        shutil.rmtree(os.path.join('msg_backup', lang_dirs[0]))
+    if os.path.exists(os.path.join('msg_backup', lang_dirs[1])):
+        shutil.rmtree(os.path.join('msg_backup', lang_dirs[1]))
     mkdir('msg_backup')
     shutil.copytree(os.path.join(msg_dir, lang_dirs[0]), os.path.join('msg_backup', lang_dirs[0]))
     shutil.copytree(os.path.join(msg_dir, lang_dirs[1]), os.path.join('msg_backup', lang_dirs[1]))
@@ -229,7 +228,7 @@ if __name__=='__main__':
             os.system(yabber_dcx + ' ' + msgbnd)
 
         #remove unnecessary files
-        if debug:
+        if not debug:
             print('Removing unnecessary files\n')
             for xml_dir, msgbnd in zip(xml_dirs, msgbnd_path):
                 os.remove(msgbnd)
