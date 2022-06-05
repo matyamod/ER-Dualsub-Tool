@@ -3,18 +3,20 @@
         {
             "label": "Make Dualsub",
             "window_name": "ER Dualsub Tool",
-            "command": ["python\\python.exe -u er_dualsub.py \"", "\" \"", "\" ", " ", " "],
+            "command": "python\\python.exe -u er_dualsub.py %msg_path% %yabber_path% %lang1% %lang2% %options%",
             "button": "Run!",
             "show_last_line": true,
             "components": [
                 {
                     "type": "folder",
-                    "label": "Path to msg folder"
+                    "label": "Path to msg folder",
+                    "add_quotes": true
                 },
                 {
                     "type": "file",
                     "label": "Path to Yabber.exe",
-                    "extension": "Yabber.exe | Yabber.exe"
+                    "extension": "Yabber.exe | Yabber.exe",
+                    "add_quotes": true
                 },
                 {
                     "type": "choice",
@@ -93,7 +95,7 @@
                     "default": 6
                 },
                 {
-                    "type": "checks",
+                    "type": "check_array",
                     "label": "Options",
                     "items": [
                         "Swap fmg files between 2 languages after making dualsub",

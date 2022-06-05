@@ -1,0 +1,6 @@
+v1.1
+- Fixed a bug it needs dll files for runtime libs 
+- Fixed an error when making dualsub for Chinese
+
+v1.0
+- Initial release

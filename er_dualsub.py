@@ -16,6 +16,7 @@ FILES = [
     ]
 
 #constants
+VERSION = '1.1'
 YABBER_EXE = 'Yabber.exe'
 YABBER_DCX_EXE = 'Yabber.DCX.exe'
 LANG_DIRS = {
@@ -134,7 +135,7 @@ if __name__=='__main__':
         raise RuntimeError('Langages are the same. ({})'.format(lang1))
 
     #print settings
-    print('ER Dualsub Tool ver1.0')
+    print('ER Dualsub Tool ver{}'.format(VERSION))
     print('Settings')
     print('  lang1: {}'.format(lang1))
     print('  lang2: {}'.format(lang2))
@@ -185,6 +186,8 @@ if __name__=='__main__':
 
         def get_xml(fmg_dir, fmg):
             path = os.path.join(fmg_dir, fmg)
+            if not os.path.exists(path):
+                return None
             os.system(yabber + ' ' + path)
             return FmgXml(path+'.xml')
 
@@ -194,6 +197,8 @@ if __name__=='__main__':
 
         def merge_fmg(fmg, sep):
             xmls = [get_xml(fmg_dir, fmg) for fmg_dir in fmg_dirs]
+            if None in xmls:
+                raise RuntimeError('file not found. ({})'.format(fmg))
             FmgXml.make_dualsub(xmls[0], xmls[1], sep, all=all)
             [pack_fmg(xml) for xml in xmls]
 
@@ -204,6 +209,9 @@ if __name__=='__main__':
         if all:
             fmgs = os.listdir(fmg_dirs[0])
             fmgs = [f for f in fmgs if (f not in file['fmg']) and f[-4:]=='.fmg']
+            path_exists = [[os.path.exists(os.path.join(fmg_dir, fmg)) for fmg_dir in fmg_dirs] for fmg in fmgs]
+            fmgs = [f for f, p in zip(fmgs, path_exists) if p[0] and p[1]]
+
             list(map(lambda x: merge_fmg(x, None), fmgs))
 
         #swap fmg files between 2 languages        

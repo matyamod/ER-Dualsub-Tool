@@ -8,7 +8,7 @@ on:
   
 env:
   ZIP_NAME: ER-Dualsub-Tool
-  GUI_VERSION: v0.0.3
+  GUI_VERSION: v0.1.2
 
 jobs:
   packaging:
@@ -42,6 +42,7 @@ jobs:
           cp er_dualsub.py ../release
           cp README.md ../release
           cp LICENSE ../release
+          cp changelog.txt ../release
           curl -OL https://github.com/matyalatte/Simple-Command-Runner/releases/download/${{env.GUI_VERSION}}/SimpleCommandRunner-${{env.GUI_VERSION}}.zip
           unzip -d SimpleCommandRunner SimpleCommandRunner-${{env.GUI_VERSION}}.zip
           cp SimpleCommandRunner/SimpleCommandRunner.exe ../release/GUI.exe
