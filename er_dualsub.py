@@ -1,4 +1,5 @@
 import os, shutil, argparse, time
+import subprocess
 import xml.etree.ElementTree as ET
 
 #list of files you want to mod
@@ -16,7 +17,7 @@ FILES = [
     ]
 
 #constants
-VERSION = '1.1'
+VERSION = '1.2'
 YABBER_EXE = 'Yabber.exe'
 YABBER_DCX_EXE = 'Yabber.DCX.exe'
 LANG_DIRS = {
@@ -38,8 +39,8 @@ LANG_DIRS = {
 
 def get_lang_dir(lang):
     if lang not in LANG_DIRS:
-        print('lang list: {}'.format(LANG_DIRS))
-        raise RuntimeError('Unsupported language detected. ({})'.format(lang))
+        print(f'lang list: {LANG_DIRS}')
+        raise RuntimeError(f'Unsupported language detected. ({lang})')
     return LANG_DIRS[lang]
 
 def mkdir(dir):
@@ -70,7 +71,7 @@ class FmgXml:
         self.xml.write(self.xml_path, xml_declaration=True, encoding='utf-8')
     
     def make_dualsub(xml1, xml2, separator, all=False):
-        print('Making dualsub: {}\n'.format(os.path.basename(xml1.xml_path)))
+        print(f'Making dualsub: {os.path.basename(xml1.xml_path)}...')
         if os.path.basename(xml1.xml_path)=='GR_Dialogues.fmg.xml':
             merge = FmgXml.merge_text_grdialog        
         else:
@@ -79,15 +80,20 @@ class FmgXml:
         for xml1_e, xml2_e in zip(xml1.xml.getroot().find('entries'), xml2.xml.getroot().find('entries')):
             if xml1_e.text == '%null%' or xml2_e.text == '%null%':
                 continue
+            if xml1_e.text is None:
+                xml1_e.text = ''
+            if xml2_e.text is None:
+                xml2_e.text = ''
             if xml1_e.attrib['id']!=xml2_e.attrib['id']:
                 raise RuntimeError('ids are not the same.')
             t1, sep, t2 = merge(xml1_e.text, xml2_e.text, separator, xml1_e.attrib['id'], all)
-            xml1_e.text = t1 + sep + t2
-            xml2_e.text = t2 + sep + t1
+            if sep is not None:
+                xml1_e.text = t1 + sep + t2
+                xml2_e.text = t2 + sep + t1
 
     def merge_text_std(t1, t2, sep, id, all):
         if t1.replace(' ', '').lower()==t2.replace(' ', '').lower() or (t1 in ['x', '×']):
-            return t1, '', ''
+            return None, None, None
         if sep is None:
             if '\n' in t1 or '\n' in t2:
                 def remove_linefeed(text):
@@ -103,8 +109,20 @@ class FmgXml:
 
     def merge_text_grdialog(t1, t2, sep, id, all):
         if (len(id)<3 and not all) or (t1.replace(' ', '').lower()==t2.replace(' ', '').lower()):
-            return t1, '', ''
+            return None, None, None
         return t1, sep, t2
+
+def run_yabber(yabber_exe, file):
+    if not os.path.exists(file):
+        RuntimeError(f'File not found. ({file})')
+    proc = subprocess.Popen(('cmd', '/c', yabber_exe, file), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc.wait()
+    (stdout, stderr) = proc.communicate()
+    print(stdout[:-4].decode())
+
+    if proc.returncode != 0:
+        print(stderr.decode())
+        RuntimeError('Yabber raised an unexpected error.')
 
 if __name__=='__main__':
     args = get_args()
@@ -124,27 +142,33 @@ if __name__=='__main__':
     debug = args.debug
     all = args.all
     if mod_name is None or mod_name=='':
-        mod_name = 'dualsub_{}_{}'.format(lang1, lang2) + '_all'*all + '_swap'*swap_files
+        mod_name = f'dualsub_{lang1}_{lang2}' + '_all'*all + '_swap'*swap_files
 
     #check args
     if os.path.basename(args.yabber)!='Yabber.exe':
-        raise RuntimeError('Not Yabber.exe ({})'.format(args.yabber))
-    if os.path.basename(msg_dir)!='msg':
-        raise RuntimeError('Not msg folder ({})'.format(msg_dir))
+        raise RuntimeError(f'Not Yabber.exe ({args.yabber})')
+    if not os.path.isdir(msg_dir):
+        raise RuntimeError(f'Not a folder. ({msg_dir})')
     if lang1==lang2:
-        raise RuntimeError('Langages are the same. ({})'.format(lang1))
+        raise RuntimeError(f'Langages are the same. ({lang1})')
+
+    #check dll
+    dll_path = os.path.join(os.path.dirname(args.yabber), 'lib', 'oo2core_6_win64.dll')
+    if not os.path.exists(dll_path):
+        raise RuntimeError(f'DLL not found. Copy it from Elden Ring. ({dll_path})')
+
 
     #print settings
-    print('ER Dualsub Tool ver{}'.format(VERSION))
+    print(f'ER Dualsub Tool ver{VERSION}')
     print('Settings')
-    print('  lang1: {}'.format(lang1))
-    print('  lang2: {}'.format(lang2))
-    print('  all: {}'.format(all))
-    print('  swap_files: {}'.format(swap_files))
-    print('  debug: {}\n'.format(debug))
+    print(f'  lang1: {lang1}')
+    print(f'  lang2: {lang2}')
+    print(f'  all: {all}')
+    print(f'  swap_files: {swap_files}')
+    print(f'  debug: {debug}\n')
 
     #make buckup
-    print('Making backup: msg_backup\n')
+    print('Making backup: msg_backup')
     if os.path.exists(os.path.join('msg_backup', lang_dirs[0])):
         shutil.rmtree(os.path.join('msg_backup', lang_dirs[0]))
     if os.path.exists(os.path.join('msg_backup', lang_dirs[1])):
@@ -166,12 +190,12 @@ if __name__=='__main__':
 
         #unpack dcx
         for dcx in dcx_path:
-            os.system(yabber_dcx + ' ' + dcx)
+            run_yabber(yabber_dcx, dcx)
 
         #unpack msgbnd
         msgbnd_path = [dcx[:-4] for dcx in dcx_path]
         for msgbnd in msgbnd_path:
-            os.system(yabber + ' ' + msgbnd)
+            run_yabber(yabber, msgbnd)
 
         #get fmg dir
         def get_fmg_path(xml_dir):
@@ -188,17 +212,17 @@ if __name__=='__main__':
             path = os.path.join(fmg_dir, fmg)
             if not os.path.exists(path):
                 return None
-            os.system(yabber + ' ' + path)
+            run_yabber(yabber, path)
             return FmgXml(path+'.xml')
 
         def pack_fmg(xml):
             xml.write()
-            os.system(yabber + ' ' + os.path.join(xml.xml_path))
+            run_yabber(yabber, os.path.join(xml.xml_path))
 
         def merge_fmg(fmg, sep):
             xmls = [get_xml(fmg_dir, fmg) for fmg_dir in fmg_dirs]
             if None in xmls:
-                raise RuntimeError('file not found. ({})'.format(fmg))
+                raise RuntimeError(f'file not found. ({fmg})')
             FmgXml.make_dualsub(xmls[0], xmls[1], sep, all=all)
             [pack_fmg(xml) for xml in xmls]
 
@@ -216,7 +240,7 @@ if __name__=='__main__':
 
         #swap fmg files between 2 languages        
         if swap_files:
-            print('Swapping files\n')
+            print('Swapping files')
             fmg_dir1 = fmg_dirs[0]
             fmg_dir2 = fmg_dirs[1]
             shutil.move(fmg_dir1, fmg_dir1+'temp')
@@ -225,19 +249,19 @@ if __name__=='__main__':
 
         #remove files for lang2
         if remove_lang2:
-            print('Removing files for lang2\n')
+            print('Removing files for lang2')
             shutil.rmtree(os.path.join(mod_name, 'msg', lang_dirs[1]))
             xml_dirs=[xml_dirs[0]]
             msgnd_path=[msgbnd_path[0]]
 
         #repack msgbnd 
         for xml_dir, msgbnd in zip(xml_dirs, msgbnd_path):
-            os.system(yabber + ' ' + xml_dir)
-            os.system(yabber_dcx + ' ' + msgbnd)
+            run_yabber(yabber, xml_dir)
+            run_yabber(yabber_dcx, msgbnd)
 
         #remove unnecessary files
         if not debug:
-            print('Removing unnecessary files\n')
+            print('Removing unnecessary files')
             for xml_dir, msgbnd in zip(xml_dirs, msgbnd_path):
                 os.remove(msgbnd)
                 os.remove(msgbnd+'.bak')
@@ -245,6 +269,6 @@ if __name__=='__main__':
                 os.remove(msgbnd+'-yabber-dcx.xml')
                 shutil.rmtree(xml_dir)
 
-    print('Run time (s): {}'.format(time.time()-start))
+    print(f'Run time (s): {time.time()-start}')
 
-    print('Done! "{}" is the mod folder'.format(mod_name))
+    print(f'Done! "{mod_name}" is the mod folder')

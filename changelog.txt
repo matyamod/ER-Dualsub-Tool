@@ -1,3 +1,8 @@
+v1.2
+- Fixed an error when file paths have white spaces
+- Fixed an error when fmg has zero-length strings
+- Improved error handling
+
 v1.1
 - Fixed a bug it needs dll files for runtime libs 
 - Fixed an error when making dualsub for Chinese

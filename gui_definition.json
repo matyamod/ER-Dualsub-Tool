@@ -2,7 +2,7 @@
     "gui": [
         {
             "label": "Make Dualsub",
-            "window_name": "ER Dualsub Tool",
+            "window_name": "ER Dualsub Tool v1.2",
             "command": "python\\python.exe -u er_dualsub.py %msg_path% %yabber_path% %lang1% %lang2% %options%",
             "button": "Run!",
             "show_last_line": true,
